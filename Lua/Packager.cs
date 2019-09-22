@@ -15,7 +15,7 @@ namespace MineCraft.Lua
         {
             IEnumerable<string> names = typeof(Packager).Assembly.GetManifestResourceNames();
 
-            if (computer.Mining != true)
+            if (computer.Mining != false)
             {
                 names = names.Where(name => name.StartsWith("MineCraft.Lua.miner"));
             }
