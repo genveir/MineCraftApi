@@ -1,0 +1,1 @@
+﻿print("hallo, dit is bot {{BOTNAME}}")
