@@ -68,6 +68,7 @@ function logon()
 		setApiId(result.readAll())
 		return true
 	elseif (responseCode == 200) then
+		setApiId(result.readAll())
 		return true
 	else
 		return false

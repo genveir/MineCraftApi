@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MineCraft.Bots;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,11 +11,23 @@ namespace MineCraft.Lua
 {
     public class Packager
     {
-        public string Package(Bot bot)
+        public string Package(Computer computer)
         {
-            var botLua = "MineCraft.Lua.bot.lua";
+            IEnumerable<string> names = typeof(Packager).Assembly.GetManifestResourceNames();
 
-            return Package(bot, "bot.lua", botLua);
+            if (computer.Mining != true)
+            {
+                names = names.Where(name => name.StartsWith("MineCraft.Lua.miner"));
+            }
+
+            var programs = new List<string>();
+            foreach(var name in names)
+            {
+                var basicName = string.Join(".", name.Split(".").Skip(3));
+
+                programs.Add(Package(computer, basicName, name));
+            }
+            return string.Join(";", programs);
         }
 
         public string PackageGApi()
@@ -37,11 +50,11 @@ namespace MineCraft.Lua
             return builder.ToString();
         }
 
-        private string Package(Bot bot, string name, string resource)
+        private string Package(Computer computer, string name, string resource)
         {
             var text = Package(name, resource);
 
-            text = text.Replace("{{BOTNAME}}", bot.Identifier);
+            text = text.Replace("{{BOTNAME}}", computer.ComputerId.ToString());
 
             return text;
         }

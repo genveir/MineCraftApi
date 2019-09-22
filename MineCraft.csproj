@@ -8,11 +8,15 @@
   <ItemGroup>
     <None Remove="Lua\bot.lua" />
     <None Remove="Lua\httpApi.lua" />
+    <None Remove="Lua\miner\startup.lua" />
+    <None Remove="Lua\miner\updateGApi.lua" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Lua\bot.lua" />
+    <EmbeddedResource Include="Lua\miner\bot.lua" />
     <EmbeddedResource Include="Lua\httpApi.lua" />
+    <EmbeddedResource Include="Lua\miner\updateGApi.lua" />
+    <EmbeddedResource Include="Lua\miner\startup.lua" />
   </ItemGroup>
 
   <ItemGroup>

@@ -16,11 +16,11 @@ namespace MineCraft.Controllers
     [ApiController]
     public class BotController : ControllerBase
     {
-        private BotRepository bots;
+        private ComputerRepository bots;
 
         public BotController()
         {
-            bots = new BotRepository();
+            bots = new ComputerRepository();
         }
 
         [HttpGet("")]
@@ -32,15 +32,15 @@ namespace MineCraft.Controllers
         [HttpPost("logon")]
         public ActionResult<string> Logon()
         {
-            var id = bots.Add();
+            var id = bots.Add().ComputerId;
 
-            return Created(id, id);
+            return Ok(id);
         }
 
         [HttpPost("{id}/logon")]
-        public ActionResult Logon(string id)
+        public ActionResult Logon(long id)
         {
-            return Ok();
+            return Ok(id);
         }
 
         [HttpGet("GApiUpdate")]
@@ -52,7 +52,7 @@ namespace MineCraft.Controllers
         }
 
         [HttpGet("{id}/update")]
-        public ActionResult<string> Update(string id)
+        public ActionResult<string> Update(long id)
         {
             var bot = bots.Get(id);
 
@@ -62,7 +62,7 @@ namespace MineCraft.Controllers
         }
 
         [HttpPost("{id}/report")]
-        public string Report(string id)
+        public string Report(long id)
         {
             var body = new StreamReader(Request.Body).ReadToEnd();
 
