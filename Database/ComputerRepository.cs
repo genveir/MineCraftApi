@@ -17,8 +17,7 @@ namespace MineCraft.Database
             {
                 var command = con.CreateCommand();
                 command.CommandText = @"
-insert into computer output inserted.* default values;
-";
+insert into computer output inserted.* default values;";
                 con.Open();
                 var reader = command.ExecuteReader();
 
@@ -28,13 +27,34 @@ insert into computer output inserted.* default values;
 
         public Computer Update(long id, string data)
         {
-            return new Computer();
+            return Get(id);
         }
 
         public Computer Get(long id)
         {
+            using (var con = new SqlConnection(connectionString))
+            {
+                var command = con.CreateCommand();
+                command.CommandText = @"
+select * from computer where computerId = @id;";
+                AddIdParam(command, id);
 
-            return new Computer();
+                con.Open();
+                var reader = command.ExecuteReader();
+
+                return Computer.FromReader(reader);
+            }
+            
+        }
+
+        private void AddIdParam(SqlCommand command, long id)
+        {
+            var param = command.CreateParameter();
+            param.DbType = System.Data.DbType.Int64;
+            param.ParameterName = "id";
+            param.Value = id;
+
+            command.Parameters.Add(param);
         }
     }
 }

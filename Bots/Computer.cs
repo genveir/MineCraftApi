@@ -35,17 +35,23 @@ namespace MineCraft.Bots
             reader.Read();
             
             var data = (IDataRecord)reader;
-            var computer = new Computer();
-            computer.ComputerId = AsLong(data[0]).Value;
-            computer.Label = AsString(data[1]);
-            computer.Location = AsString(data[2]);
-            computer.Crafty = AsBool(data[3]);
-            computer.Mining = AsBool(data[4]);
-            computer.Farming = AsBool(data[5]);
-            computer.Digging = AsBool(data[6]);
-            computer.Melee = AsBool(data[7]);
-            computer.Felling = AsBool(data[8]);
-            computer.Mobile = AsBool(data[9]);
+            Computer computer = null;
+
+            var id = AsLong(data[0]);
+            if (id.HasValue)
+            {
+                computer = new Computer();
+                computer.ComputerId = id.Value;
+                computer.Label = AsString(data[1]);
+                computer.Location = AsString(data[2]);
+                computer.Crafty = AsBool(data[3]);
+                computer.Mining = AsBool(data[4]);
+                computer.Farming = AsBool(data[5]);
+                computer.Digging = AsBool(data[6]);
+                computer.Melee = AsBool(data[7]);
+                computer.Felling = AsBool(data[8]);
+                computer.Mobile = AsBool(data[9]);
+            }
 
             return computer;
         }

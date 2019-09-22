@@ -40,6 +40,10 @@ namespace MineCraft.Controllers
         [HttpPost("{id}/logon")]
         public ActionResult Logon(long id)
         {
+            var computer = bots.Get(id);
+
+            if (computer == null) id = bots.Add().ComputerId;
+
             return Ok(id);
         }
 
