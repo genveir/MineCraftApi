@@ -15,18 +15,28 @@ namespace MineCraft.Lua
         {
             IEnumerable<string> names = typeof(Packager).Assembly.GetManifestResourceNames();
 
-            if (computer.Mining != false)
+            var baseScripts = names.Where(name => name.StartsWith("MineCraft.Lua.base"));
+            var general = names.Where(name => name.StartsWith("MineCraft.Lua.general"));
+            IEnumerable<string> specific = new List<string>();
+            if (computer.Mining == true)
             {
-                names = names.Where(name => name.StartsWith("MineCraft.Lua.miner"));
+                specific = names.Where(name => name.StartsWith("MineCraft.Lua.miner"));
             }
+            names = baseScripts.Union(general.Union(specific));
+
+            var task = "MineCraft.Lua.tasks." + TaskAssigner.GetOrder(computer) + ".lua";
 
             var programs = new List<string>();
             foreach(var name in names)
             {
-                var basicName = string.Join(".", name.Split(".").Skip(3));
+                var split = name.Split(".");
+                var folder = split[2] + "/";
+                if (folder == "base/") folder = "";
+                var basicName = folder + string.Join(".", split.Skip(3));
 
                 programs.Add(Package(computer, basicName, name));
             }
+            programs.Add(Package(computer, "general/bot.lua", task));
             return string.Join(";", programs);
         }
 
@@ -44,6 +54,8 @@ namespace MineCraft.Lua
             builder.Append(";");
 
             var text = new StreamReader(stream).ReadToEnd();
+
+            if (text.Contains(";")) throw new DividerInPackageTextException(name);
 
             builder.Append(text);
 

@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MineCraft.Bots;
 using MineCraft.Database;
 using MineCraft.Lua;
 
 namespace MineCraft.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/bot")]
+    [Route("computer")]
     [ApiController]
     public class BotController : ControllerBase
     {
@@ -66,13 +68,18 @@ namespace MineCraft.Controllers
         }
 
         [HttpPost("{id}/report")]
-        public string Report(long id)
+        [Consumes("application/x-www-form-urlencoded")]
+        public ActionResult Report(long id, [FromForm]string data)
         {
-            var body = new StreamReader(Request.Body).ReadToEnd();
-
             var bot = bots.Get(id);
 
-            return "not implemented";
+            var reporter = new ReportParser();
+            var result = reporter.ParseReport(bot, data);
+
+            bot.ApplyTools();
+            bots.Update(bot);
+
+            return Ok(result);
         }
     }
 }

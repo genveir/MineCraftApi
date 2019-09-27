@@ -1,4 +1,4 @@
-﻿local baseUri = "http://84.104.212.172:4800/api/bot/"
+﻿local baseUri = "http://84.104.212.172:4800/computer/"
 
 function getApiId()
 	local fileExists = fs.exists("ApiId")

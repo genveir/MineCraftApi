@@ -9,15 +9,18 @@ namespace MineCraft.Database
 {
     public class ComputerRepository
     {
-        private string connectionString = "server=localhost;database=Minecraft;Integrated Security=true";
-
         public Computer Add()
         {
-            using (var con = new SqlConnection(connectionString))
+            using (var con = Db.GetConnection())
             {
                 var command = con.CreateCommand();
                 command.CommandText = @"
-insert into computer output inserted.* default values;";
+insert into 
+    computer (LastActive) 
+output 
+    inserted.* 
+values 
+    (CURRENT_TIMESTAMP)";
                 con.Open();
                 var reader = command.ExecuteReader();
 
@@ -25,19 +28,63 @@ insert into computer output inserted.* default values;";
             }
         }
 
-        public Computer Update(long id, string data)
+        public Computer Update(Computer bot)
         {
-            return Get(id);
+            using (var con = Db.GetConnection())
+            {
+                var command = con.CreateCommand();
+                command.CommandText = @"
+update computer
+set
+    label = @label,
+    location = @location,
+    crafty = @crafty,
+    mining = @mining,
+    farming = @farming,
+    digging = @digging,
+    melee = @melee,
+    felling = @felling,
+    mobile = @mobile,
+    fuel = @fuel,
+    lastActive = CURRENT_TIMESTAMP
+output 
+    inserted.* 
+where
+    computerId = @id
+";
+                command.AddStringParameter("label", bot.Label)
+                    .AddStringParameter("location", bot.Location)
+                    .AddBitParameter("crafty", bot.Crafty)
+                    .AddBitParameter("mining", bot.Mining)
+                    .AddBitParameter("farming", bot.Farming)
+                    .AddBitParameter("digging", bot.Digging)
+                    .AddBitParameter("melee", bot.Melee)
+                    .AddBitParameter("felling", bot.Felling)
+                    .AddBitParameter("mobile", bot.Mobile)
+                    .AddLongParameter("fuel", bot.Fuel)
+                    .AddLongParameter("id", bot.ComputerId);
+
+                con.Open();
+                var reader = command.ExecuteReader();
+
+                return Computer.FromReader(reader);
+            }
         }
 
         public Computer Get(long id)
         {
-            using (var con = new SqlConnection(connectionString))
+            using (var con = Db.GetConnection())
             {
                 var command = con.CreateCommand();
                 command.CommandText = @"
-select * from computer where computerId = @id;";
-                AddIdParam(command, id);
+update computer
+set
+    lastActive = CURRENT_TIMESTAMP
+output 
+    inserted.* 
+where 
+    computerId = @id;";
+                command.AddLongParameter("id", id);
 
                 con.Open();
                 var reader = command.ExecuteReader();
@@ -45,16 +92,6 @@ select * from computer where computerId = @id;";
                 return Computer.FromReader(reader);
             }
             
-        }
-
-        private void AddIdParam(SqlCommand command, long id)
-        {
-            var param = command.CreateParameter();
-            param.DbType = System.Data.DbType.Int64;
-            param.ParameterName = "id";
-            param.Value = id;
-
-            command.Parameters.Add(param);
         }
     }
 }

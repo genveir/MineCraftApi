@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MineCraft.Database;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -22,6 +23,7 @@ namespace MineCraft.Bots
         public long ComputerId { get; set; }
         public string Label { get; set; }
         public string Location { get; set; }
+        public long? Fuel { get; set; }
         public bool? Crafty { get; set; }
         public bool? Mining { get; set; }
         public bool? Farming { get; set; }
@@ -30,55 +32,50 @@ namespace MineCraft.Bots
         public bool? Felling { get; set; }
         public bool? Mobile { get; set; }
 
+        public ITool LeftTool { get; set; }
+        public ITool RightTool { get; set; }
+
+        public void ApplyTools()
+        {
+            Crafty = null;
+            Mining = null;
+            Farming = null;
+            Digging = null;
+            Melee = null;
+            Felling = null;
+
+            if (LeftTool != null) LeftTool.Apply(this);
+            if (RightTool != null) RightTool.Apply(this);
+        }
+
         public static Computer FromReader(SqlDataReader reader)
         {
-            reader.Read();
-            
-            var data = (IDataRecord)reader;
-            Computer computer = null;
+            var hasData = reader.Read();
 
-            var id = AsLong(data[0]);
-            if (id.HasValue)
+            Computer computer = null;
+            if (hasData)
             {
-                computer = new Computer();
-                computer.ComputerId = id.Value;
-                computer.Label = AsString(data[1]);
-                computer.Location = AsString(data[2]);
-                computer.Crafty = AsBool(data[3]);
-                computer.Mining = AsBool(data[4]);
-                computer.Farming = AsBool(data[5]);
-                computer.Digging = AsBool(data[6]);
-                computer.Melee = AsBool(data[7]);
-                computer.Felling = AsBool(data[8]);
-                computer.Mobile = AsBool(data[9]);
+                var data = (IDataRecord)reader;
+;
+                var id = data.AsLong(0);
+                if (id.HasValue)
+                {
+                    computer = new Computer();
+                    computer.ComputerId = id.Value;
+                    computer.Label = data.AsString(1);
+                    computer.Location = data.AsString(2);
+                    computer.Crafty = data.AsBool(3);
+                    computer.Mining = data.AsBool(4);
+                    computer.Farming = data.AsBool(5);
+                    computer.Digging = data.AsBool(6);
+                    computer.Melee = data.AsBool(7);
+                    computer.Felling = data.AsBool(8);
+                    computer.Mobile = data.AsBool(9);
+                    computer.Fuel = data.AsLong(10);
+                }
             }
 
             return computer;
-        }
-
-        private static long? AsLong(object val)
-        {
-            return (long?)(NOV(val)?.Value);
-        }
-
-        private static string AsString(object val)
-        {
-            return NOV(val)?.Value.ToString();
-        }
-
-        private static bool? AsBool(object val)
-        {
-            return (bool?)(NOV(val)?.Value);
-        }
-
-        private static NullOrValue NOV(object val)
-        {
-            return val.GetType() == typeof(DBNull) ? null : new NullOrValue() { Value = val };
-        }
-
-        private class NullOrValue
-        {
-            public object Value;
         }
     }    
 }
