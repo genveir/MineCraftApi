@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace MineCraft.Tasks
 {
-    public class BasicTask : ITask
+    public class RunProgramTask : ITask
     {
         private Computer bot;
         private string taskName;
 
-        public BasicTask(Computer bot, string taskName)
+        public RunProgramTask(Computer bot, string taskName)
         {
             this.bot = bot;
             this.taskName = taskName;
@@ -20,7 +20,7 @@ namespace MineCraft.Tasks
 
         public string GetLua(Resources resources)
         {
-            var mostSpecific = resources.GetMostSpecific(bot, "roof");
+            var mostSpecific = resources.GetMostSpecific(bot, taskName);
             if (mostSpecific == null) return null;
 
             var progNameParts = mostSpecific.Split(".").TakeLast(3).ToArray();

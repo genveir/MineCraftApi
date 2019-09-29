@@ -44,8 +44,15 @@ where TaskId in (select top 1 TaskId from Task where ComputerId = @computerId or
 
         private static ITask Parse(string task, string args, Computer bot, ITask defaultTask)
         {
-            ITask assigned = new BasicTask(bot, task);
-            if (assigned == null) assigned = defaultTask;
+            ITask assigned;
+            switch (task)
+            {
+                case "move": assigned = new Move(args); break;
+                default:
+                    assigned = new RunProgramTask(bot, task);
+                    if (assigned == null) assigned = defaultTask;
+                    break;
+            }
 
             return assigned;
         }
