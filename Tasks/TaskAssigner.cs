@@ -6,15 +6,15 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MineCraft.Lua
+namespace MineCraft.Tasks
 {
     public static class TaskAssigner
     {
-        public static string GetOrder(Computer bot)
+        public static ITask GetOrder(Computer bot)
         {
-            string defaultOrder = "stopListening";
+            ITask defaultOrder = new StopListening();
 
-            if (bot.Mining == true) defaultOrder = "wait";
+            if (bot.Mining == true) defaultOrder = new Wait();
 
             using (var con = Db.GetConnection())
             {
@@ -22,7 +22,7 @@ namespace MineCraft.Lua
                 command.CommandText = @"
 delete from Task
 output
-	deleted.TaskName
+	deleted.TaskName, deleted.Args
 where TaskId in (select top 1 TaskId from Task where ComputerId = @computerId order by TaskId)
 ";
                 command.AddLongParameter("computerId", bot.ComputerId);
@@ -33,13 +33,21 @@ where TaskId in (select top 1 TaskId from Task where ComputerId = @computerId or
                 if (!result.Read()) return defaultOrder;
                 else
                 {
-                    var task = ((IDataRecord)result).AsString(0);
+                    var data = (IDataRecord)result;
+                    var task = data.AsString(0);
+                    var args = data.AsString(1);
 
-                    if (task == null) return defaultOrder;
-
-                    return task;
+                    return Parse(task, args, bot, defaultOrder);
                 }
             }
+        }
+
+        private static ITask Parse(string task, string args, Computer bot, ITask defaultTask)
+        {
+            ITask assigned = new BasicTask(bot, task);
+            if (assigned == null) assigned = defaultTask;
+
+            return assigned;
         }
 
         public static void EnqueueIndividualTask(long computerId, string task)

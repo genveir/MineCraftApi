@@ -1,4 +1,5 @@
 ﻿using MineCraft.Bots;
+using MineCraft.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,30 +14,30 @@ namespace MineCraft.Lua
     {
         public string Package(Computer computer)
         {
-            IEnumerable<string> names = typeof(Packager).Assembly.GetManifestResourceNames();
+            var resources = new Resources();
 
-            var baseScripts = names.Where(name => name.StartsWith("MineCraft.Lua.base"));
-            var general = names.Where(name => name.StartsWith("MineCraft.Lua.general"));
-            IEnumerable<string> specific = new List<string>();
-            if (computer.Mining == true)
-            {
-                specific = names.Where(name => name.StartsWith("MineCraft.Lua.miner"));
-            }
-            names = baseScripts.Union(general.Union(specific));
+            var baseScripts = resources.GetBase();
+            var general = resources.GetGeneral();
 
-            var task = "MineCraft.Lua.tasks." + TaskAssigner.GetOrder(computer) + ".lua";
+            IEnumerable<string> role = resources.GetRole(computer);
+            var specific = resources.GetSpecific(computer);
+            
+            var toPackage = baseScripts.Union(general.Union(role.Union(specific)));
 
             var programs = new List<string>();
-            foreach(var name in names)
+            foreach(var name in toPackage)
             {
                 var split = name.Split(".");
                 var folder = split[2] + "/";
                 if (folder == "base/") folder = "";
                 var basicName = folder + string.Join(".", split.Skip(3));
 
-                programs.Add(Package(computer, basicName, name));
+                programs.Add(PackageResource(computer, basicName, name));
             }
-            programs.Add(Package(computer, "general/bot.lua", task));
+
+            var task = TaskAssigner.GetOrder(computer);
+
+            programs.Add(Package("general/bot.lua", task.GetLua(resources)));
             return string.Join(";", programs);
         }
 
@@ -46,25 +47,31 @@ namespace MineCraft.Lua
             return new StreamReader(stream).ReadToEnd();
         }
 
-        private string Package(string name, string resource)
+        private string Package(string name, string lua)
         {
-            var stream = Assembly.GetCallingAssembly().GetManifestResourceStream(resource);
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("name");
+            if (lua.Contains(";")) throw new DividerInPackageTextException(name);
 
             var builder = new StringBuilder(name);
             builder.Append(";");
 
-            var text = new StreamReader(stream).ReadToEnd();
-
-            if (text.Contains(";")) throw new DividerInPackageTextException(name);
-
-            builder.Append(text);
+            builder.Append(lua);
 
             return builder.ToString();
         }
 
-        private string Package(Computer computer, string name, string resource)
+        private string PackageResource(string name, string resource)
         {
-            var text = Package(name, resource);
+            var stream = Assembly.GetCallingAssembly().GetManifestResourceStream(resource);
+
+            var text = new StreamReader(stream).ReadToEnd();
+
+            return Package(name, text);
+        }
+
+        private string PackageResource(Computer computer, string name, string resource)
+        {
+            var text = PackageResource(name, resource);
 
             text = text.Replace("{{BOTNAME}}", computer.ComputerId.ToString());
 

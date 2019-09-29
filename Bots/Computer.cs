@@ -31,6 +31,7 @@ namespace MineCraft.Bots
         public bool? Melee { get; set; }
         public bool? Felling { get; set; }
         public bool? Mobile { get; set; }
+        public string Category { get; set; }
 
         public ITool LeftTool { get; set; }
         public ITool RightTool { get; set; }
@@ -72,6 +73,7 @@ namespace MineCraft.Bots
                     computer.Felling = data.AsBool(8);
                     computer.Mobile = data.AsBool(9);
                     computer.Fuel = data.AsLong(10);
+                    computer.Category = data.AsString(12);
                 }
             }
 

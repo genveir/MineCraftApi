@@ -13,8 +13,16 @@ end
 turtle.select(16)
 local details = turtle.getItemDetail(16)
 if (details) then
-	print("slot 16 is not empty, can't check tool")
-else
+	turtle.equipLeft()
+	details = turtle.getItemDetail(16)
+	if (details) then
+		print("slot 16 is not empty, can't check tool")
+		report("tools Unknown")
+	end
+end
+
+local details = turtle.getItemDetail(16)
+if (not details) then
 	turtle.equipLeft()
 	local details = turtle.getItemDetail(16)
 	if (details) then

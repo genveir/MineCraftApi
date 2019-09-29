@@ -7,31 +7,23 @@
 
   <ItemGroup>
     <None Remove="Lua\bot.lua" />
-    <None Remove="Lua\miner\move.lua" />
+    <None Remove="Lua\highMiner\roof.lua" />
     <None Remove="Lua\miner\roof.lua" />
     <None Remove="Lua\miner\startup.lua" />
     <None Remove="Lua\miner\strip.lua" />
     <None Remove="Lua\miner\update.lua" />
     <None Remove="Lua\miner\updateGApi.lua" />
-    <None Remove="Lua\tasks\move.lua" />
-    <None Remove="Lua\tasks\stopListening.lua" />
-    <None Remove="Lua\tasks\strip.lua" />
-    <None Remove="Lua\tasks\wait.lua" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Lua\general\report.lua" />
+    <EmbeddedResource Include="Lua\highMiner\roof.lua" />
     <EmbeddedResource Include="Lua\httpApi.lua" />
-    <EmbeddedResource Include="Lua\miner\move.lua" />
     <EmbeddedResource Include="Lua\miner\roof.lua" />
     <EmbeddedResource Include="Lua\miner\strip.lua" />
     <EmbeddedResource Include="Lua\general\update.lua" />
     <EmbeddedResource Include="Lua\general\updateGApi.lua" />
     <EmbeddedResource Include="Lua\base\startup.lua" />
-    <EmbeddedResource Include="Lua\tasks\move.lua" />
-    <EmbeddedResource Include="Lua\tasks\stopListening.lua" />
-    <EmbeddedResource Include="Lua\tasks\strip.lua" />
-    <EmbeddedResource Include="Lua\tasks\wait.lua" />
   </ItemGroup>
 
   <ItemGroup>

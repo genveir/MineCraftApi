@@ -19,7 +19,6 @@ local function placeAndWalk(num)
 end
 
 shell.run("refuel")
-turtle.down()
 
 selectStone()
 
@@ -50,6 +49,5 @@ for n=1,4,1 do
 	turtle.forward()
 end
 turtle.turnRight()
-turtle.up()
 turtle.dig()
 turtle.forward()
